@@ -1,0 +1,14 @@
+# Evita copiar artefatos do host (especialmente obj/project.assets.json que carrega
+# fallback package folders do Windows e quebra a restauração no container Linux).
+**/bin/
+**/obj/
+**/.vs/
+**/.idea/
+.git/
+.gitignore
+Dockerfile
+docker-compose*.yml
+README*.md
+docs/
+TestResults/
+**/*.user

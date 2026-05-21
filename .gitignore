@@ -1,0 +1,14 @@
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+*.log
+k8s/secrets.yaml
+**/appsettings.Local.json
+.env
+.env.local
+TestResults/
+coverage.xml
+*.coverage

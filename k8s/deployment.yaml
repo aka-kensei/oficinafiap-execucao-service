@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: execucao-service-deployment
+  labels:
+    app: execucao-service
+    service: execucao
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: execucao-service
+  template:
+    metadata:
+      labels:
+        app: execucao-service
+        service: execucao
+      annotations:
+        admission.datadoghq.com/enabled: "true"
+    spec:
+      containers:
+        - name: execucao-service
+          image: ghcr.io/aka-kensei/oficinafiap-execucao-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "150m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom: { configMapKeyRef: { name: execucao-service-config, key: ASPNETCORE_ENVIRONMENT } }
+            - name: Jwt__Issuer
+              valueFrom: { configMapKeyRef: { name: execucao-service-config, key: Jwt__Issuer } }
+            - name: Jwt__Audience
+              valueFrom: { configMapKeyRef: { name: execucao-service-config, key: Jwt__Audience } }
+            - name: RabbitMq__Host
+              valueFrom: { configMapKeyRef: { name: execucao-service-config, key: RabbitMq__Host } }
+            - name: RabbitMq__Username
+              valueFrom: { configMapKeyRef: { name: execucao-service-config, key: RabbitMq__Username } }
+            - name: MongoDb__Database
+              valueFrom: { configMapKeyRef: { name: execucao-service-config, key: MongoDb__Database } }
+            - name: Jwt__SecretKey
+              valueFrom: { secretKeyRef: { name: execucao-service-secrets, key: Jwt__SecretKey } }
+            - name: ConnectionStrings__ExecucaoDb
+              valueFrom: { secretKeyRef: { name: execucao-service-secrets, key: ConnectionStrings__ExecucaoDb } }
+            - name: RabbitMq__Password
+              valueFrom: { secretKeyRef: { name: execucao-service-secrets, key: RabbitMq__Password } }
+
+            - name: DD_SERVICE
+              value: "execucao-service"
+            - name: DD_ENV
+              value: "production"
+            - name: DD_VERSION
+              value: "4.0"
+            - name: DD_AGENT_HOST
+              value: "datadog-agent.datadog.svc.cluster.local"
+            - name: DD_TRACE_AGENT_PORT
+              value: "8126"
+            - name: DD_LOGS_INJECTION
+              value: "true"
+            - name: DD_RUNTIME_METRICS_ENABLED
+              value: "true"
+            - name: DD_PROFILING_ENABLED
+              value: "true"
+            - name: CORECLR_ENABLE_PROFILING
+              value: "1"
+            - name: CORECLR_PROFILER
+              value: "{846F5F1C-F9AE-4B07-969E-05C26BC060D8}"
+            - name: CORECLR_PROFILER_PATH
+              value: "/opt/datadog/Datadog.Trace.ClrProfiler.Native.so"
+            - name: DD_DOTNET_TRACER_HOME
+              value: "/opt/datadog"

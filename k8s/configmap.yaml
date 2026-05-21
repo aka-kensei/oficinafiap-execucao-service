@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: execucao-service-config
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  Jwt__Issuer: "Oficina.Auth"
+  Jwt__Audience: "Oficina.Api"
+  RabbitMq__Host: "rabbitmq.messaging-ns.svc.cluster.local"
+  RabbitMq__Username: "oficina"
+  MongoDb__Database: "execucao_db"
